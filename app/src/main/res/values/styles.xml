@@ -1,0 +1,52 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorHint">@color/colorTextHint</item>
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+    <style name="Theme_activity_main" parent="AppTheme">
+        <item name="android:colorButtonNormal">@color/colorButton</item>
+        <item name="android:editTextColor">@color/edittextColor</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:dialogTheme">@style/Theme_fragment_dialog_of_activity_main</item>
+        <item name="android:colorControlNormal">@color/controlNormalColor</item>
+    </style>
+
+    <style name="Them_activity_users_online" parent="AppTheme">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="colorControlNormal">#ffffff</item>
+        <item name="android:colorButtonNormal">@color/colorButton</item>
+        <item name="android:editTextColor">@color/edittextColor</item>
+        <item name="android:dialogTheme">@style/Theme_fragment_dialog_of_activity_users_online</item>
+        <item name="android:colorControlNormal">@color/controlNormalColor</item>
+    </style>
+
+    <style name="Theme_fragment_dialog_of_activity_main" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorHint">@color/colorTextHint</item>
+        <item name="android:editTextColor">@color/edittextColor</item>
+        <item name="android:colorControlNormal">@color/controlNormalColor</item>
+        <item name="android:colorButtonNormal">@color/colorButton</item>
+    </style>
+
+    <style name="Theme_fragment_dialog_of_activity_users_online" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorHint">@color/colorTextHint</item>
+        <item name="android:editTextColor">@color/edittextColor</item>
+        <item name="android:colorControlNormal">@color/controlNormalColor</item>
+        <item name="android:colorButtonNormal">@color/colorButton</item>
+    </style>
+
+
+    <style name="AppTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/colorText</item>
+        <item name="android:textColorPrimary">@color/colorText</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+    
+
+</resources>
