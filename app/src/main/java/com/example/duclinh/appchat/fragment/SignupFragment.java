@@ -85,9 +85,8 @@ public class SignupFragment extends DialogFragment {
                 final ProgressDialog progressDialog = new ProgressDialog(context, R.style.AppTheme_Dark_Dialog);
                 progressDialog.setIndeterminate(true);
                 progressDialog.setMessage("Authenticating...");
-                progressDialog.setCancelable(false);
+                progressDialog.setCancelable(true);
                 progressDialog.setCanceledOnTouchOutside(false);
-                progressDialog.show();
 
                 final String textAccoun = account.getText().toString();
                 final String textPassword = password.getText().toString();
@@ -100,9 +99,10 @@ public class SignupFragment extends DialogFragment {
                     Toast.makeText(context, "Xác nhận mật khẩu không đúng", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                progressDialog.show();
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonObject.put("account", textAccoun);
+                    jsonObject.put("username", textAccoun);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -111,8 +111,8 @@ public class SignupFragment extends DialogFragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                MyApplication.socket.emit("signUp", jsonObject);
-                MyApplication.socket.once("resultSignUp", new Emitter.Listener() {
+                MyApplication.socket.emit("signup", jsonObject);
+                MyApplication.socket.once("resultSignup", new Emitter.Listener() {
                     @Override
                     public void call(final Object... args) {
                         progressDialog.dismiss();
@@ -129,18 +129,15 @@ public class SignupFragment extends DialogFragment {
                                 if(errorCode == 100){
                                     // when sigup successfull
                                     Toast.makeText(context, "Tao tai khoan thanh cong", Toast.LENGTH_SHORT).show();
+                                    dismiss();
                                 }
                                 else if (errorCode == 101){
-                                    /// when account already exist
-                                    Toast.makeText(context, "Tài khoản đã tồn tại", Toast.LENGTH_SHORT).show();
-                                }
-                                else if(errorCode == 102){
-                                    /// when email error
-                                    Toast.makeText(context, "Email không hợp lệ", Toast.LENGTH_SHORT).show();
+                                    /// email wrong
+                                    Toast.makeText(context, "Email sai", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    // when app error
-                                    Toast.makeText(context, "Hệ thống bị lỗi", Toast.LENGTH_SHORT).show();
+                                    /// when email error
+                                    Toast.makeText(context, "Lỗi hệ thống!", Toast.LENGTH_SHORT).show();
                                 }
 
                             }

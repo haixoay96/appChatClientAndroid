@@ -80,8 +80,8 @@ public class AdapterUsersOnline extends RecyclerView.Adapter<AdapterUsersOnline.
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Account account = list.get(position);
         Picasso.with(parent.getContext()).load(MyApplication.HOST+account.getAvatar()).resize(500,500).into(holder.getAvatar());
-        holder.getAccount().setText(account.getNameAccount());
-        holder.getStatus().setText("Cuoi len");
+        holder.getAccount().setText(account.getNickname());
+        holder.getStatus().setText(account.getStatus());
         Animation animAnticipateOvershoot = AnimationUtils.loadAnimation(parent.getContext(), R.anim.anticipateovershoot_interpolator);
         holder.itemView.setAnimation(animAnticipateOvershoot);
     }

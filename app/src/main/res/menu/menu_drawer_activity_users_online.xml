@@ -1,17 +1,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="none">
 
         <item
             android:id="@+id/drawer_home"
-            android:title="home" />
-
+            android:title="Home" />
         <item
-            android:id="@+id/drawer_favourite"
-            android:title="login" />
+            android:id="@+id/drawer_feedback"
+            android:title="Feedback" />
         <item
-            android:id="@+id/drawer_settings"
-            android:title="logout" />
+            android:id="@+id/drawer_logout"
+            android:title="Logout" />
+        <item
+            android:id="@+id/drawer_exit"
+            android:title="Exit">
+        </item>
 
     </group>
 </menu>

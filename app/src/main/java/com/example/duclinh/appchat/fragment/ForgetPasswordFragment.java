@@ -82,7 +82,7 @@ public class ForgetPasswordFragment extends DialogFragment {
                 }
                 JSONObject object = new JSONObject();
                 try {
-                    object.put("account", account.getText().toString());
+                    object.put("username", account.getText().toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -100,17 +100,15 @@ public class ForgetPasswordFragment extends DialogFragment {
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                                if(errorCode == 104){
-                                    Toast.makeText(context, "Không tìm thấy tài khoản", Toast.LENGTH_SHORT).show();
+                                if(errorCode == 100){
+                                    Toast.makeText(context, "Check mail để nhận password", Toast.LENGTH_SHORT).show();
+                                    dismiss();
                                 }
-                                else if(errorCode == 105){
-                                    Toast.makeText(context, "Thử lại", Toast.LENGTH_SHORT).show();
-                                }
-                                else if(errorCode == 100){
-                                    Toast.makeText(context, "Check mail để lấy mật khẩu", Toast.LENGTH_SHORT).show();
+                                else if(errorCode == 101){
+                                    Toast.makeText(context, "Lỗi hệ thống", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
-                                    Toast.makeText(context, "Lỗi hệ thống", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "Tài khoản không tồn tại", Toast.LENGTH_SHORT).show();
                                 }
 
                             }

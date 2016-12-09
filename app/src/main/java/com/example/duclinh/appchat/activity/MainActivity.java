@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this, R.style.AppTheme_Dark_Dialog);
                 progressDialog.setIndeterminate(true);
                 progressDialog.setMessage("Authenticating...");
-                progressDialog.setCancelable(false);
+                progressDialog.setCancelable(true);
                 progressDialog.setCanceledOnTouchOutside(false);
                 progressDialog.show();
 
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 final String textPassword = password.getText().toString();
                 final JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonObject.put("account", textAccount);
+                    jsonObject.put("username", textAccount);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -80,23 +81,28 @@ public class MainActivity extends AppCompatActivity {
                                 try {
                                     JSONObject jsonObject = (JSONObject) args[0];
                                     int statusCode = 0;
-                                    statusCode = jsonObject.getInt("status");
+                                    statusCode = jsonObject.getInt("statusCode");
+                                    Log.d("code", statusCode+"");
                                     if (statusCode == 100) {
-                                        JSONArray list = null;
-                                        list = jsonObject.getJSONArray("listUsersOnline");
+                                        Toast.makeText(MainActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
                                         Intent intent = new Intent(MainActivity.this, UsersOnlineActivity.class);
-                                        intent.putExtra("listUsersOnline", list.toString());
-                                        intent.putExtra("account", textAccount);
+                                        intent.putExtra("username", textAccount);
                                         intent.putExtra("password", textPassword);
+                                        intent.putExtra("nickname", jsonObject.getString("nickname"));
+                                        intent.putExtra("avatar", jsonObject.getString("avatar"));
                                         startActivity(intent);
                                         finish();
-                                    } else if (statusCode == 103) {
-                                        Toast.makeText(MainActivity.this, "Sai tên hoặc mật khẩu", Toast.LENGTH_SHORT).show();
+                                    } else if (statusCode == 101) {
+                                        Toast.makeText(MainActivity.this, "Bạn socket đã được sử dụng", Toast.LENGTH_SHORT).show();
 
-                                    } else {
+                                    } else if(statusCode == 102){
                                         //case eles
                                         Toast.makeText(MainActivity.this, "Lỗi hệ thống", Toast.LENGTH_SHORT).show();
 
+                                    }else if(statusCode == 103){
+                                        Toast.makeText(MainActivity.this, "Tài khoản này đã được đăng nhập", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        Toast.makeText(MainActivity.this, "Sai tên tài khoản hoặc mật khẩu", Toast.LENGTH_SHORT).show();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();

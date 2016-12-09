@@ -9,22 +9,34 @@ import java.util.ArrayList;
  * Created by haixo on 8/26/2016.
  */
 public class Account implements Client {
-    private String nameAccount;
+    private String username;
+    private String nickname;
     private String avatar;
+    private String status;
     private ArrayList<FormMessage> list;
 
-    public Account(String nameAccount, String avatar) {
-        this.nameAccount = nameAccount;
+    public Account(String username, String nickname, String avatar, String status) {
+        this.username = username;
+        this.nickname = nickname;
         this.avatar = avatar;
+        this.status = status;
         list = new ArrayList<FormMessage>();
     }
 
-    public String getNameAccount() {
-        return nameAccount;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNameAccount(String nameAccount) {
-        this.nameAccount = nameAccount;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getAvatar() {
@@ -35,18 +47,26 @@ public class Account implements Client {
         this.avatar = avatar;
     }
 
-    public ArrayList<FormMessage> getList() {
-        return list;
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public void setList(ArrayList<FormMessage> list) {
         this.list = list;
     }
 
+    public ArrayList<FormMessage> getList() {
+        return list;
+    }
+
     @Override
-    public void update(String account, String message, int sender) {
-        if(nameAccount.equals(account)){
-            list.add(new FormMessage(MyApplication.HOST+"/data/avatar/defaultavatar.jpg", message, sender));
+    public void update(String username, String message, int sender) {
+        if (this.username.equals(username)) {
+            list.add(new FormMessage(MyApplication.HOST + avatar, message, sender));
         }
     }
 }

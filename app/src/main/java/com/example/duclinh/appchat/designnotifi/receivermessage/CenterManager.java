@@ -20,9 +20,9 @@ public class CenterManager implements Observer {
         listClient.remove(client);
     }
     @Override
-    public void notifiAllClient(String account, String message, int sender) {
+    public void notifiAllClient(String username, String message, int sender) {
         for (Client client:listClient) {
-            client.update(account, message, sender);
+            client.update(username, message, sender);
         }
     }
 }

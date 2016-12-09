@@ -32,7 +32,7 @@ import java.util.ArrayList;
 /**
  * Created by haixo on 8/19/2016.
  */
-public class ScreenChatFragment extends DialogFragment implements Client{
+public class ScreenChatFragment extends DialogFragment implements Client {
     private Context context;
     private RecyclerView listMessage;
     private EditText message;
@@ -43,28 +43,33 @@ public class ScreenChatFragment extends DialogFragment implements Client{
     private AdapterListMessageChat adapterListMessageChat;
     private RecyclerView.LayoutManager layoutManager;
     private String account;
+    private String username;
 
 
-
-    public ScreenChatFragment(){
+    public ScreenChatFragment() {
 
     }
-    public ScreenChatFragment(CenterManager centerManagerMessage , ArrayList<FormMessage> listData){
+
+    public ScreenChatFragment(CenterManager centerManagerMessage, ArrayList<FormMessage> listData) {
         this.centerManagerMessage = centerManagerMessage;
         this.listData = listData;
     }
-    public static ScreenChatFragment newInstance(String account, CenterManager centerManagerMessage, ArrayList<FormMessage> listData){
+
+    public static ScreenChatFragment newInstance(String account, String username, CenterManager centerManagerMessage, ArrayList<FormMessage> listData) {
         ScreenChatFragment screenChatFragment = new ScreenChatFragment(centerManagerMessage, listData);
         Bundle args = new Bundle();
         args.putString("account", account);
+        args.putString("username", username);
         screenChatFragment.setArguments(args);
         return screenChatFragment;
     }
+
     @Override
     public void update(String account, String message, int sender) {
         adapterListMessageChat.notifyDataSetChanged();
-        listMessage.scrollToPosition(listData.size()-1);
+        listMessage.scrollToPosition(listData.size() - 1);
     }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -75,7 +80,7 @@ public class ScreenChatFragment extends DialogFragment implements Client{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_screen_chat,container);
+        View view = inflater.inflate(R.layout.fragment_screen_chat, container);
         return view;
     }
 
@@ -101,7 +106,8 @@ public class ScreenChatFragment extends DialogFragment implements Client{
     }
 
     private void controlLogic() {
-        account =getArguments().getString("account");
+        account = getArguments().getString("account");
+        username = getArguments().getString("username");
         getDialog().setTitle(account);
         accountTitle.setText(account);
         adapterListMessageChat = new AdapterListMessageChat(listData);
@@ -110,15 +116,17 @@ public class ScreenChatFragment extends DialogFragment implements Client{
         listMessage.setLayoutManager(layoutManager);
         listMessage.setAdapter(adapterListMessageChat);
         adapterListMessageChat.notifyDataSetChanged();
-        listMessage.scrollToPosition(listData.size() -1 );
+        listMessage.scrollToPosition(listData.size() - 1);
         centerManagerMessage.addClient(this);
     }
+
     private void controlView(View view) {
         listMessage = (RecyclerView) view.findViewById(R.id.fragment_screen_chat_listmessage);
         message = (EditText) view.findViewById(R.id.fragment_screen_chat_message);
         send = (AppCompatButton) view.findViewById(R.id.fragment_screen_chat_send);
         accountTitle = (TextView) view.findViewById(R.id.fragment_screen_chat_accounttitle);
     }
+
     private void controlEvent() {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,12 +135,12 @@ public class ScreenChatFragment extends DialogFragment implements Client{
                 final String data = message.getText().toString();
                 message.setText("");
                 try {
-                    object.put("account", account);
+                    object.put("username", username);
                     object.put("message", data);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                MyApplication.socket.emit("sendMessage",object);
+                MyApplication.socket.emit("sendMessage", object);
             }
         });
 

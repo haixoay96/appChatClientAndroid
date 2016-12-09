@@ -3,10 +3,13 @@ package com.example.duclinh.appchat.activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,10 +19,12 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.duclinh.appchat.R;
@@ -27,16 +32,21 @@ import com.example.duclinh.appchat.adapter.AdapterUsersOnline;
 import com.example.duclinh.appchat.data.Account;
 import com.example.duclinh.appchat.data.FormMessage;
 import com.example.duclinh.appchat.designnotifi.receivermessage.CenterManager;
+import com.example.duclinh.appchat.fragment.ChangePasswordFragment;
 import com.example.duclinh.appchat.fragment.ScreenChatFragment;
+import com.example.duclinh.appchat.fragment.SignupFragment;
 import com.example.duclinh.appchat.orther.DividerItemDecoration;
 import com.example.duclinh.appchat.orther.MyApplication;
 import com.github.nkzawa.emitter.Emitter;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UsersOnlineActivity extends AppCompatActivity {
     private CenterManager centerManagerMessage;
@@ -48,6 +58,10 @@ public class UsersOnlineActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    private CircleImageView avatar;
+    private TextView nickname;
+    private TextView username;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,22 +77,11 @@ public class UsersOnlineActivity extends AppCompatActivity {
         MyApplication.socket.disconnect();
         finish();
     }
+
     private void handleLogic() {
         // init center notifi message
         centerManagerMessage = new CenterManager();
-        // get data users online
-        try {
-            JSONArray listUsersOnline = new JSONArray(getIntent().getStringExtra("listUsersOnline"));
-            listAccount = new ArrayList<Account>();
-            for(int i = 0 ;  i< listUsersOnline.length(); i++){
-                JSONObject object =  listUsersOnline.getJSONObject(i);
-                Account account = new Account(object.getString("account"),object.getString("avatar"));
-                listAccount.add(account);
-                centerManagerMessage.addClient(account);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        listAccount = new ArrayList<Account>();
 
         setSupportActionBar(toolbar);
         adapterUsersOnline = new AdapterUsersOnline(listAccount);
@@ -87,19 +90,53 @@ public class UsersOnlineActivity extends AppCompatActivity {
         listUsers.setItemAnimator(new DefaultItemAnimator());
         listUsers.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         listUsers.setAdapter(adapterUsersOnline);
-        adapterUsersOnline.notifyDataSetChanged();
-
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.open, R.string.close);
+        //  adapterUsersOnline.notifyDataSetChanged();
+        Log.d("code", 1 + "");
+        Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
         actionBarDrawerToggle.syncState();
+        Picasso.with(this).load(MyApplication.HOST + getIntent().getStringExtra("avatar")).into(avatar);
+        nickname.setText(getIntent().getStringExtra("nickname"));
+        username.setText(getIntent().getStringExtra("username"));
 
 
+        MyApplication.socket.off("resultListUser");
+        MyApplication.socket.on("resultListUser", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                JSONObject object = (JSONObject) args[0];
+                try {
+                    Log.d("code", 2 + "");
+                    JSONArray listUsersOnline = object.getJSONArray("listUser");
+                    for (int i = 0; i < listUsersOnline.length(); i++) {
+                        object = listUsersOnline.getJSONObject(i);
+                        Account account = new Account(object.getString("username"), object.getString("nickname"), object.getString("avatar"), object.getString("status"));
+                        listAccount.add(account);
+                        centerManagerMessage.addClient(account);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+               /* UsersOnlineActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(UsersOnlineActivity.this, "2", Toast.LENGTH_SHORT).show();
+                        adapterUsersOnline.notifyDataSetChanged();
+                    }
+                });*/
+
+
+            }
+        });
+        MyApplication.socket.emit("listUser");
         MyApplication.socket.off("addUser");
         MyApplication.socket.on("addUser", new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
                 JSONObject object = (JSONObject) args[0];
                 try {
-                    Account account = new Account(object.getString("account"), object.getString("avatar"));
+                    Account account = new Account(object.getString("username"), object.getString("nickname"), object.getString("avatar"), object.getString("status"));
                     listAccount.add(account);
                     centerManagerMessage.addClient(account);
                 } catch (JSONException e) {
@@ -121,16 +158,16 @@ public class UsersOnlineActivity extends AppCompatActivity {
             @Override
             public void call(Object... args) {
                 JSONObject object = (JSONObject) args[0];
-                String nameAccount =null;
+                String username = null;
                 try {
-                   nameAccount = object.getString("account");
+                    username = object.getString("username");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 int i;
                 int length = listAccount.size();
-                for( i = 0; i<length; i++ ){
-                    if(listAccount.get(i).getNameAccount().equals(nameAccount)){
+                for (i = 0; i < length; i++) {
+                    if (listAccount.get(i).getUsername().equals(username)) {
                         break;
                     }
                 }
@@ -149,27 +186,27 @@ public class UsersOnlineActivity extends AppCompatActivity {
         MyApplication.socket.on("receiveMessage", new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-               UsersOnlineActivity.this.runOnUiThread(new Runnable() {
-                   @Override
-                   public void run() {
-                       JSONObject object = (JSONObject) args[0];
-                       String account = null;
-                       String message = null;
-                       try {
-                           account =object.getString("account");
-                           message= object.getString("message");
-                       } catch (JSONException e) {
-                           e.printStackTrace();
-                       }
-                       centerManagerMessage.notifiAllClient(account, message, 2);
-                       NotificationCompat.Builder builder = (NotificationCompat.Builder) new NotificationCompat.Builder(UsersOnlineActivity.this)
-                               .setSmallIcon(R.drawable.message)
-                               .setContentTitle(account)
-                               .setContentText(message);
-                       NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                       notificationManager.notify(1,builder.build());
-                   }
-               });
+                UsersOnlineActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject object = (JSONObject) args[0];
+                        String username = null;
+                        String message = null;
+                        try {
+                            username = object.getString("username");
+                            message = object.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        centerManagerMessage.notifiAllClient(username, message, 2);
+                        NotificationCompat.Builder builder = (NotificationCompat.Builder) new NotificationCompat.Builder(UsersOnlineActivity.this)
+                                .setSmallIcon(R.drawable.message)
+                                .setContentTitle(username)
+                                .setContentText(message);
+                        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                        notificationManager.notify(1, builder.build());
+                    }
+                });
             }
         });
 
@@ -181,15 +218,15 @@ public class UsersOnlineActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         JSONObject object = (JSONObject) args[0];
-                        String account = null;
+                        String username = null;
                         String message = null;
                         try {
-                            account =object.getString("account");
-                            message= object.getString("message");
+                            username = object.getString("username");
+                            message = object.getString("message");
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        centerManagerMessage.notifiAllClient(account, message, 1);
+                        centerManagerMessage.notifiAllClient(username, message, 1);
                     }
                 });
             }
@@ -221,10 +258,11 @@ public class UsersOnlineActivity extends AppCompatActivity {
         listUsers.addOnItemTouchListener(new RecyclerTouchListener(this, listUsers, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Toast.makeText(UsersOnlineActivity.this, position +"", Toast.LENGTH_SHORT).show();
-                String account = listAccount.get(position).getNameAccount();
+                Toast.makeText(UsersOnlineActivity.this, position + "", Toast.LENGTH_SHORT).show();
+                String account = listAccount.get(position).getNickname();
+                String username = listAccount.get(position).getUsername();
                 FragmentManager fragmentManager = getSupportFragmentManager();
-                ScreenChatFragment screenChatFragment = ScreenChatFragment.newInstance(account,centerManagerMessage, listAccount.get(position).getList());
+                ScreenChatFragment screenChatFragment = ScreenChatFragment.newInstance(account, username, centerManagerMessage, listAccount.get(position).getList());
                 screenChatFragment.show(fragmentManager, account);
             }
 
@@ -237,7 +275,28 @@ public class UsersOnlineActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                return false;
+                Toast.makeText(UsersOnlineActivity.this, item.getItemId() + "", Toast.LENGTH_SHORT).show();
+                item.setChecked(false);
+                switch (item.getItemId()) {
+                    case R.id.drawer_home:
+                        break;
+                    case R.id.drawer_feedback:
+                        FragmentManager fragmentManager = getSupportFragmentManager();
+                        ChangePasswordFragment fragment = ChangePasswordFragment.newInstance("Change password");
+                        fragment.show(fragmentManager, "fragment");
+                        break;
+                    case R.id.drawer_logout:
+                        MyApplication.socket.disconnect();
+                        Intent intent = new Intent(UsersOnlineActivity.this, MainActivity.class);
+                        UsersOnlineActivity.this.startActivity(intent);
+                        UsersOnlineActivity.this.finish();
+                        break;
+                    case R.id.drawer_exit:
+                        System.exit(1);
+                        break;
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
             }
         });
 
@@ -251,10 +310,14 @@ public class UsersOnlineActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.activity_users_online_toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.activity_users_online_drawerlayout);
         navigationView = (NavigationView) findViewById(R.id.activity_users_online_navigation);
+        avatar = (CircleImageView) navigationView.getHeaderView(0).findViewById(R.id.header_avatar);
+        nickname = (TextView) navigationView.getHeaderView(0).findViewById(R.id.header_nickname);
+        username = (TextView) navigationView.getHeaderView(0).findViewById(R.id.header_username);
     }
 
     public interface ClickListener {
         void onClick(View view, int position);
+
         void onLongClick(View view, int position);
     }
 
